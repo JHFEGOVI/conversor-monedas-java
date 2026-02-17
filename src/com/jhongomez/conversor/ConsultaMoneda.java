@@ -14,6 +14,7 @@ import java.util.Map;
 public class ConsultaMoneda {
 
     private final Gson gson = new Gson();
+    private final HttpClient client = HttpClient.newHttpClient();
 
     public Map<String, Double> obtenerTasasFiltradas(String apiKey, String base) {
         String url = "https://v6.exchangerate-api.com/v6/" + apiKey + "/latest/" + base;
@@ -27,7 +28,7 @@ public class ConsultaMoneda {
 
         try {
             HttpResponse<String> response =
-                HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                client.send(request, HttpResponse.BodyHandlers.ofString());
             int statusCode = response.statusCode();
             String body = response.body();
 

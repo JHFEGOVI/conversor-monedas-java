@@ -1,35 +1,30 @@
 package com.jhongomez.conversor;
 
+import java.text.DecimalFormat;
+import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Principal {
 
     public static void main(String[] args) {
-        String apiKey = args.length > 0 ? args[0] : System.getenv("EXCHANGE_API_KEY");
+        String apiKey = System.getenv("EXCHANGE_API_KEY");
 
         if (apiKey == null || apiKey.isBlank()) {
             System.out.println("No se encontró API key.");
-            System.out.println("Pásala por args o usa la variable de entorno EXCHANGE_API_KEY.");
+            System.out.println("Configura la variable de entorno EXCHANGE_API_KEY.");
             return;
         }
 
         ConsultaMoneda consulta = new ConsultaMoneda();
-        Map<String, Double> tasas = consulta.obtenerTasasFiltradas(apiKey, "USD");
         Scanner scanner = new Scanner(System.in);
+        DecimalFormat df = new DecimalFormat("#,##0.00");
 
         System.out.println("Sea bienvenido/a al Conversor de Moneda");
 
         boolean continuar = true;
         while (continuar) {
-            System.out.println();
-            System.out.println("1) USD → ARS");
-            System.out.println("2) USD → BOB");
-            System.out.println("3) USD → BRL");
-            System.out.println("4) USD → CLP");
-            System.out.println("5) USD → COP");
-            System.out.println("6) Salir");
-            System.out.print("Elija una opción: ");
+            mostrarMenu();
 
             String opcionTexto = scanner.nextLine();
             int opcion;
@@ -43,6 +38,7 @@ public class Principal {
 
             if (opcion == 6) {
                 continuar = false;
+                scanner.close();
                 System.out.println("Saliendo del conversor...");
                 continue;
             }
@@ -69,6 +65,14 @@ public class Principal {
                     continue;
             }
 
+            Map<String, Double> tasas;
+            try {
+                tasas = consulta.obtenerTasasFiltradas(apiKey, "USD");
+            } catch (RuntimeException e) {
+                System.out.println("No se pudo consultar la API. Intente nuevamente.");
+                continue;
+            }
+
             Double tasa = tasas.get(destino);
             if (tasa == null) {
                 System.out.println("No se encontró tasa para la moneda " + destino + ".");
@@ -76,18 +80,37 @@ public class Principal {
             }
 
             System.out.print("Ingrese el monto en USD: ");
-            String montoTexto = scanner.nextLine();
 
             double monto;
             try {
-                monto = Double.parseDouble(montoTexto);
-            } catch (NumberFormatException e) {
-                System.out.println("Monto inválido. Intente nuevamente.");
+                monto = scanner.nextDouble();
+                scanner.nextLine();
+            } catch (InputMismatchException e) {
+                System.out.println("Ingrese un número válido");
+                scanner.nextLine();
+                continue;
+            }
+
+            if (monto <= 0) {
+                System.out.println("El monto debe ser mayor que 0");
                 continue;
             }
 
             double resultado = Conversor.convertir(monto, tasa);
-            System.out.printf("%.2f USD equivalen a %.2f %s%n", monto, resultado, destino);
+            System.out.println(
+                df.format(monto) + " USD equivalen a " + df.format(resultado) + " " + destino
+            );
         }
+    }
+
+    private static void mostrarMenu() {
+        System.out.println();
+        System.out.println("1) USD → ARS");
+        System.out.println("2) USD → BOB");
+        System.out.println("3) USD → BRL");
+        System.out.println("4) USD → CLP");
+        System.out.println("5) USD → COP");
+        System.out.println("6) Salir");
+        System.out.print("Elija una opción: ");
     }
 }
