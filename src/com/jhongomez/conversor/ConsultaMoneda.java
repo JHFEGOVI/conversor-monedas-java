@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ConsultaMoneda {
+    private static final String[] MONEDAS = {"ARS", "BOB", "BRL", "CLP", "COP", "USD"};
 
     private final Gson gson = new Gson();
     private final HttpClient cliente = HttpClient.newHttpClient();
@@ -34,7 +35,7 @@ public class ConsultaMoneda {
 
             if (codigoHttp != 200) {
                 throw new RuntimeException(
-                    "Error al consultar /latest. Código HTTP: " + codigoHttp + ". Body: " + cuerpo
+                    "Error al consultar la API. Código HTTP: " + codigoHttp
                 );
             }
 
@@ -42,9 +43,8 @@ public class ConsultaMoneda {
             JsonObject tasas = datos.getAsJsonObject("conversion_rates");
 
             Map<String, Double> tasasFiltradas = new LinkedHashMap<>();
-            String[] codigos = {"ARS", "BOB", "BRL", "CLP", "COP", "USD"};
 
-            for (String codigo : codigos) {
+            for (String codigo : MONEDAS) {
                 if (tasas.has(codigo)) {
                     tasasFiltradas.put(codigo, tasas.get(codigo).getAsDouble());
                 }

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Principal {
+    private static final String MONEDA_BASE = "USD";
 
     public static void main(String[] args) {
         String claveApi = System.getenv("EXCHANGE_API_KEY");
@@ -67,9 +68,9 @@ public class Principal {
 
             Map<String, Double> tasas;
             try {
-                tasas = consulta.obtenerTasas(claveApi, "USD");
+                tasas = consulta.obtenerTasas(claveApi, MONEDA_BASE);
             } catch (RuntimeException e) {
-                System.out.println("No se pudo consultar la API. Intente nuevamente.");
+                System.out.println("Error al consultar tasas. Verifique su conexión o la API key.");
                 continue;
             }
 
@@ -79,7 +80,7 @@ public class Principal {
                 continue;
             }
 
-            System.out.print("Ingrese el monto en USD: ");
+            System.out.print("Ingrese el monto en " + MONEDA_BASE + ": ");
 
             double monto;
             try {
@@ -98,18 +99,18 @@ public class Principal {
 
             double resultado = Conversor.convertir(monto, tasa);
             System.out.println(
-                formato.format(monto) + " USD equivalen a " + formato.format(resultado) + " " + destino
+                formato.format(monto) + " " + MONEDA_BASE + " equivalen a " + formato.format(resultado) + " " + destino
             );
         }
     }
 
     private static void mostrarMenu() {
         System.out.println();
-        System.out.println("1) USD → ARS");
-        System.out.println("2) USD → BOB");
-        System.out.println("3) USD → BRL");
-        System.out.println("4) USD → CLP");
-        System.out.println("5) USD → COP");
+        System.out.println("1) " + MONEDA_BASE + " → ARS");
+        System.out.println("2) " + MONEDA_BASE + " → BOB");
+        System.out.println("3) " + MONEDA_BASE + " → BRL");
+        System.out.println("4) " + MONEDA_BASE + " → CLP");
+        System.out.println("5) " + MONEDA_BASE + " → COP");
         System.out.println("6) Salir");
         System.out.print("Elija una opción: ");
     }
