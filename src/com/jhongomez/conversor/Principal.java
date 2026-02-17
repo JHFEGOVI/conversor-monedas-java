@@ -8,17 +8,17 @@ import java.util.Scanner;
 public class Principal {
 
     public static void main(String[] args) {
-        String apiKey = System.getenv("EXCHANGE_API_KEY");
+        String claveApi = System.getenv("EXCHANGE_API_KEY");
 
-        if (apiKey == null || apiKey.isBlank()) {
+        if (claveApi == null || claveApi.isBlank()) {
             System.out.println("No se encontró API key.");
             System.out.println("Configura la variable de entorno EXCHANGE_API_KEY.");
             return;
         }
 
         ConsultaMoneda consulta = new ConsultaMoneda();
-        Scanner scanner = new Scanner(System.in);
-        DecimalFormat df = new DecimalFormat("#,##0.00");
+        Scanner teclado = new Scanner(System.in);
+        DecimalFormat formato = new DecimalFormat("#,##0.00");
 
         System.out.println("Sea bienvenido/a al Conversor de Moneda");
 
@@ -26,11 +26,11 @@ public class Principal {
         while (continuar) {
             mostrarMenu();
 
-            String opcionTexto = scanner.nextLine();
+            String textoOpcion = teclado.nextLine();
             int opcion;
 
             try {
-                opcion = Integer.parseInt(opcionTexto);
+                opcion = Integer.parseInt(textoOpcion);
             } catch (NumberFormatException e) {
                 System.out.println("Opción inválida. Intente nuevamente.");
                 continue;
@@ -38,7 +38,7 @@ public class Principal {
 
             if (opcion == 6) {
                 continuar = false;
-                scanner.close();
+                teclado.close();
                 System.out.println("Saliendo del conversor...");
                 continue;
             }
@@ -67,7 +67,7 @@ public class Principal {
 
             Map<String, Double> tasas;
             try {
-                tasas = consulta.obtenerTasasFiltradas(apiKey, "USD");
+                tasas = consulta.obtenerTasas(claveApi, "USD");
             } catch (RuntimeException e) {
                 System.out.println("No se pudo consultar la API. Intente nuevamente.");
                 continue;
@@ -83,11 +83,11 @@ public class Principal {
 
             double monto;
             try {
-                monto = scanner.nextDouble();
-                scanner.nextLine();
+                monto = teclado.nextDouble();
+                teclado.nextLine();
             } catch (InputMismatchException e) {
                 System.out.println("Ingrese un número válido");
-                scanner.nextLine();
+                teclado.nextLine();
                 continue;
             }
 
@@ -98,7 +98,7 @@ public class Principal {
 
             double resultado = Conversor.convertir(monto, tasa);
             System.out.println(
-                df.format(monto) + " USD equivalen a " + df.format(resultado) + " " + destino
+                formato.format(monto) + " USD equivalen a " + formato.format(resultado) + " " + destino
             );
         }
     }

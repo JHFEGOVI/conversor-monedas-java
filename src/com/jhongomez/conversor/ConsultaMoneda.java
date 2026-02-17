@@ -14,12 +14,12 @@ import java.util.Map;
 public class ConsultaMoneda {
 
     private final Gson gson = new Gson();
-    private final HttpClient client = HttpClient.newHttpClient();
+    private final HttpClient cliente = HttpClient.newHttpClient();
 
-    public Map<String, Double> obtenerTasasFiltradas(String apiKey, String base) {
-        String url = "https://v6.exchangerate-api.com/v6/" + apiKey + "/latest/" + base;
+    public Map<String, Double> obtenerTasas(String claveApi, String base) {
+        String url = "https://v6.exchangerate-api.com/v6/" + claveApi + "/latest/" + base;
 
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest solicitud = HttpRequest.newBuilder()
             .uri(URI.create(url))
             .GET()
             .header("Accept", "application/json")
@@ -27,26 +27,26 @@ public class ConsultaMoneda {
             .build();
 
         try {
-            HttpResponse<String> response =
-                client.send(request, HttpResponse.BodyHandlers.ofString());
-            int statusCode = response.statusCode();
-            String body = response.body();
+            HttpResponse<String> respuesta =
+                cliente.send(solicitud, HttpResponse.BodyHandlers.ofString());
+            int codigoHttp = respuesta.statusCode();
+            String cuerpo = respuesta.body();
 
-            if (statusCode != 200) {
+            if (codigoHttp != 200) {
                 throw new RuntimeException(
-                    "Error al consultar /latest. Código HTTP: " + statusCode + ". Body: " + body
+                    "Error al consultar /latest. Código HTTP: " + codigoHttp + ". Body: " + cuerpo
                 );
             }
 
-            JsonObject json = gson.fromJson(body, JsonObject.class);
-            JsonObject rates = json.getAsJsonObject("conversion_rates");
+            JsonObject datos = gson.fromJson(cuerpo, JsonObject.class);
+            JsonObject tasas = datos.getAsJsonObject("conversion_rates");
 
             Map<String, Double> tasasFiltradas = new LinkedHashMap<>();
             String[] codigos = {"ARS", "BOB", "BRL", "CLP", "COP", "USD"};
 
             for (String codigo : codigos) {
-                if (rates.has(codigo)) {
-                    tasasFiltradas.put(codigo, rates.get(codigo).getAsDouble());
+                if (tasas.has(codigo)) {
+                    tasasFiltradas.put(codigo, tasas.get(codigo).getAsDouble());
                 }
             }
 
